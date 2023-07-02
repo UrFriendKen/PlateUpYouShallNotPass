@@ -47,7 +47,7 @@ namespace KitchenYouShallNotPass.Patches
             null,
             null,
             null,
-            typeof(Main).GetMethod("GetOccupantWithFallbackAndExceptions", BindingFlags.NonPublic | BindingFlags.Static),
+            typeof(PatchController).GetMethod("GetOccupantWithFallbackAndExceptions", BindingFlags.NonPublic | BindingFlags.Static),
             null
         };
 

@@ -1,110 +1,42 @@
-﻿using Kitchen;
-using KitchenData;
-using KitchenLib;
-using KitchenLib.Event;
-using KitchenLib.References;
+﻿using HarmonyLib;
 using KitchenMods;
 using System.Collections.Generic;
 using System.Reflection;
-using Unity.Entities;
 using UnityEngine;
 
 // Namespace should have "Kitchen" in the beginning
 namespace KitchenYouShallNotPass
 {
-    public class Main : BaseMod, IModSystem
+    public class Main : IModInitializer
     {
-        // GUID must be unique and is recommended to be in reverse domain name notation
-        // Mod Name is displayed to the player and listed in the mods menu
-        // Mod Version must follow semver notation e.g. "1.2.3"
         public const string MOD_GUID = "IcedMilo.PlateUp.YouShallNotPass";
         public const string MOD_NAME = "You Shall Not Pass";
-        public const string MOD_VERSION = "0.1.0";
-        public const string MOD_AUTHOR = "IcedMilo";
-        public const string MOD_GAMEVERSION = ">=1.1.5";
-        // Game version this mod is designed for in semver
-        // e.g. ">=1.1.3" current and all future
-        // e.g. ">=1.1.3 <=1.2.3" for all from/until
+        public const string MOD_VERSION = "0.1.1";
 
-        // Boolean constant whose value depends on whether you built with DEBUG or RELEASE mode, useful for testing
-#if DEBUG
-        public const bool DEBUG_MODE = true;
-#else
-        public const bool DEBUG_MODE = false;
-#endif
+        Harmony harmony;
+        static List<Assembly> PatchedAssemblies = new List<Assembly>();
 
-        static HashSet<int> allowedFloorOccupants = new HashSet<int>()
+        public Main()
         {
-            ApplianceReferences.MopWater,
-            ApplianceReferences.MopWaterLong,
-            ApplianceReferences.BuffedFloor,
-            ApplianceReferences.MessCustomer1,
-            ApplianceReferences.MessCustomer2,
-            ApplianceReferences.MessCustomer3,
-            ApplianceReferences.MessKitchen1,
-            ApplianceReferences.MessKitchen2,
-            ApplianceReferences.MessKitchen3
-        };
+            if (harmony == null)
+                harmony = new Harmony(MOD_GUID);
+            Assembly assembly = Assembly.GetExecutingAssembly();
+            if (assembly != null && !PatchedAssemblies.Contains(assembly))
+            {
+                harmony.PatchAll(assembly);
+                PatchedAssemblies.Add(assembly);
+            }
+        }
 
-        // public static AssetBundle Bundle;
-
-        static new Main instance;
-
-        public Main() : base(MOD_GUID, MOD_NAME, MOD_AUTHOR, MOD_VERSION, MOD_GAMEVERSION, Assembly.GetExecutingAssembly()) { }
-
-        protected override void OnInitialise()
+        public void PostActivate(KitchenMods.Mod mod)
         {
             LogWarning($"{MOD_GUID} v{MOD_VERSION} in use!");
-            instance = this;
         }
 
-        internal static Entity GetOccupantWithFallbackAndExceptions(Vector3 position, OccupancyLayer layer = OccupancyLayer.Default)
-        {
-            if (Session.CurrentGameNetworkMode != GameNetworkMode.Host)
-                return default;
+        public void PreInject() { }
 
-            Entity occupant = instance.GetOccupant(position, layer);
-            if (occupant == default)
-            {
-                occupant = instance.GetOccupant(position, OccupancyLayer.Floor);
-                if (instance.Require(occupant, out CAppliance appliance) && allowedFloorOccupants.Contains(appliance.ID))
-                {
-                    occupant = default;
-                }
-            }
-            return occupant;
-        }
+        public void PostInject() { }
 
-        //private void AddGameData()
-        //{
-        //    LogInfo("Attempting to register game data...");
-
-        //    // AddGameDataObject<MyCustomGDO>();
-
-        //    LogInfo("Done loading game data.");
-        //}
-
-        protected override void OnUpdate()
-        {
-        }
-
-        protected override void OnPostActivate(KitchenMods.Mod mod)
-        {
-            // TODO: Uncomment the following if you have an asset bundle.
-            // TODO: Also, make sure to set EnableAssetBundleDeploy to 'true' in your ModName.csproj
-
-            // LogInfo("Attempting to load asset bundle...");
-            // Bundle = mod.GetPacks<AssetBundleModPack>().SelectMany(e => e.AssetBundles).First();
-            // LogInfo("Done loading asset bundle.");
-
-            // Register custom GDOs
-            // AddGameData();
-
-            // Perform actions when game data is built
-            Events.BuildGameDataEvent += delegate (object s, BuildGameDataEventArgs args)
-            {
-            };
-        }
         #region Logging
         public static void LogInfo(string _log) { Debug.Log($"[{MOD_NAME}] " + _log); }
         public static void LogWarning(string _log) { Debug.LogWarning($"[{MOD_NAME}] " + _log); }
