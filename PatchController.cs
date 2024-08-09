@@ -3,7 +3,6 @@ using KitchenData;
 using KitchenMods;
 using System.Collections.Generic;
 using Unity.Entities;
-using UnityEngine;
 
 namespace KitchenYouShallNotPass
 {
@@ -34,16 +33,18 @@ namespace KitchenYouShallNotPass
             34773971, // MessKitchen3
         };
 
-        internal static Entity GetOccupantWithFallbackAndExceptions(Vector3 position, OccupancyLayer layer = OccupancyLayer.Default)
+        internal static Entity GetOccupantWithFallbackAndExceptions(IntVector3 position, OccupancyLayer layer = OccupancyLayer.Default)
         {
             if (Session.CurrentGameNetworkMode != GameNetworkMode.Host)
                 return default;
-
-            Entity occupant = instance.GetOccupant(position, layer);
+            
+            Entity occupant = instance.TileManager.GetOccupant(position, layer);
             if (occupant == default)
             {
-                occupant = instance.GetOccupant(position, OccupancyLayer.Floor);
-                if (instance.Require(occupant, out CAppliance appliance) && allowedFloorOccupants.Contains(appliance.ID))
+                occupant = instance.TileManager.GetOccupant(position, OccupancyLayer.Floor);
+                if (occupant != default &&
+                    instance.Require(occupant, out CAppliance appliance) &&
+                    allowedFloorOccupants.Contains(appliance.ID))
                 {
                     occupant = default;
                 }

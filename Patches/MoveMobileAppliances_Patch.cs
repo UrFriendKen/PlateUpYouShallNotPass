@@ -16,9 +16,11 @@ namespace KitchenYouShallNotPass.Patches
         {
             OpCodes.Ldarg_0,
             OpCodes.Ldfld,
-            OpCodes.Ldloc_S,
-            OpCodes.Ldc_I4_0,
             OpCodes.Call,
+            OpCodes.Ldloc_S,
+            OpCodes.Call,
+            OpCodes.Ldc_I4_0,
+            OpCodes.Callvirt,
             OpCodes.Stloc_S
         };
 
@@ -28,21 +30,27 @@ namespace KitchenYouShallNotPass.Patches
             null,
             null,
             null,
-            typeof(GenericSystemBase).GetMethod("GetOccupant", BindingFlags.NonPublic | BindingFlags.Instance, null, new Type[] { typeof(UnityEngine.Vector3), typeof(KitchenData.OccupancyLayer) }, null),
+            null,
+            null,
+            typeof(TileManager).GetMethod("GetOccupant", BindingFlags.Public | BindingFlags.Instance, null, new Type[] { typeof(Kitchen.IntVector3), typeof(KitchenData.OccupancyLayer) }, null),
             null
         };
 
         static readonly List<OpCode> MODIFIED_OPCODES = new List<OpCode>()
         {
-            //OpCodes.Ldloc_S,
-            //OpCodes.Ldfld,
-            //OpCodes.Ldc_I4,
-            //OpCodes.Ceq,
-            //OpCodes.Br_S
+            OpCodes.Ldarg_0,
+            OpCodes.Ldfld,
+            OpCodes.Call,
+            OpCodes.Ldloc_S,
+            OpCodes.Call,
+            OpCodes.Ldc_I4_0,
+            OpCodes.Call
         };
 
         static readonly List<object> MODIFIED_OPERANDS = new List<object>()
         {
+            null,
+            null,
             null,
             null,
             null,

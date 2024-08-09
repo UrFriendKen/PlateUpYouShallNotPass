@@ -11,7 +11,7 @@ namespace KitchenYouShallNotPass
     {
         public const string MOD_GUID = "IcedMilo.PlateUp.YouShallNotPass";
         public const string MOD_NAME = "You Shall Not Pass";
-        public const string MOD_VERSION = "0.1.1";
+        public const string MOD_VERSION = "0.1.2";
 
         Harmony harmony;
         static List<Assembly> PatchedAssemblies = new List<Assembly>();
